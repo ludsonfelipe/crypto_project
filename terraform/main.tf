@@ -32,15 +32,15 @@ resource "google_pubsub_topic" "bitcoin_topic" {
 
 data "archive_file" "bitcoin_cloud_function_folder" {
   type        = "zip"
-  output_path = "/tmp/${var.name_bitcoin_function_zip}.zip"
-  source_dir  = "${path.module}/bitcoin_cloud_function"
+  output_path = "/tmp/${var.name_crypto_function_zip}.zip"
+  source_dir  = "${path.module}/../source/crypto_api_function"
   #excludes    = var.excludes
 }
 
 
 resource "google_storage_bucket_object" "store_bitcoin_function" {
-    name = "${var.name_bitcoin_function_zip}.${data.archive_file.bitcoin_cloud_function_folder.output_sha}.zip"
-    bucket = var.name_bucket_bitcoin #google_storage_bucket.bucket_bitcoin_api.id
+    name = "${var.name_crypto_function_zip}.${data.archive_file.bitcoin_cloud_function_folder.output_sha}.zip"
+    bucket = google_storage_bucket.bucket_bitcoin_api.id
     source = data.archive_file.bitcoin_cloud_function_folder.output_path
     
 }
