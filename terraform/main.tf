@@ -2,6 +2,7 @@ provider "google" {
     project = var.project_id
     region = var.region
 }
+
 resource "google_secret_manager_secret" "api_secret_key" {
     secret_id = var.secret_id
     
@@ -37,7 +38,6 @@ data "archive_file" "bitcoin_cloud_function_folder" {
   #excludes    = var.excludes
 }
 
-
 resource "google_storage_bucket_object" "store_bitcoin_function" {
     name = "${var.name_crypto_function_zip}.${data.archive_file.bitcoin_cloud_function_folder.output_sha}.zip"
     bucket = google_storage_bucket.bucket_bitcoin_api.id
@@ -45,20 +45,23 @@ resource "google_storage_bucket_object" "store_bitcoin_function" {
     
 }
 
-#resource "google_cloudfunctions_function" "bitcoin_function" {
-#    
-#    name         = "bitcoin-function"
-#    runtime      = "python310"
-#    entry_point  = "get_bitcoin_data"
-#    trigger_http = true     
-#    
-#    environment_variables = {
-#      TOPIC_ID   = var.name_topic_bitcoin
-#      PROJECT_ID = var.project_id
-#      SECRET_ID = google_secret_manager_secret_version.api_secret_key_version.name
-#    }
-#
-#    region = var.region
-#    timeout = 60    
-#    depends_on = [google_secret_manager_secret_version.api_secret_key_version]  
-#}
+resource "google_cloudfunctions_function" "bitcoin_function" {
+    
+    name         = "bitcoin-function"
+    runtime      = "python310"
+    entry_point  = "get_bitcoin_data"
+    trigger_http = true     
+    source_archive_bucket = google_storage_bucket.bucket_bitcoin_api.name
+    source_archive_object = google_storage_bucket_object.store_bitcoin_function.name
+
+
+    environment_variables = {
+      TOPIC_ID   = var.name_topic_bitcoin
+      PROJECT_ID = var.project_id
+      SECRET_ID = google_secret_manager_secret_version.api_secret_key_version.secret_data
+    }
+
+    region = var.region
+    timeout = 60    
+    depends_on = [google_secret_manager_secret_version.api_secret_key_version, google_pubsub_topic.bitcoin_topic]  
+}
