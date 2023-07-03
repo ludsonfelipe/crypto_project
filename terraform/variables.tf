@@ -1,6 +1,5 @@
-variable "project_id" {
-    default = "playground-s-11-c3a318ad"
-}
+variable "project_id" {}
+
 variable "region" {
     default = "us-east1"
 }
@@ -11,14 +10,17 @@ variable "secret_api_key" {
     
 }
 variable "name_bucket_bitcoin" {
-  default = "bucket_bitcoin_api_project"
+  default = "bucket_bitcoin_api_project__99"
+}
+variable "dataset_id" {
+    default ="crypto"
 }
 variable "name_topic_bitcoin" {
   default = "bitcoin-topic"
 }
+variable "dataflow_sub" {
+    default = "dataflow"
+}
 variable "name_crypto_function_zip" {
   default = "bitcoin_function"
 }
-#variable "excludes" {
-#  default = "readme.md"
-#}

@@ -31,11 +31,17 @@ resource "google_pubsub_topic" "bitcoin_topic" {
   name = var.name_topic_bitcoin
 }
 
+resource "google_pubsub_subscription" "dataflow_sub" {
+  name = var.dataflow_sub
+  topic = google_pubsub_topic.bitcoin_topic.name
+}
+
+
+
 data "archive_file" "bitcoin_cloud_function_folder" {
   type        = "zip"
   output_path = "/tmp/${var.name_crypto_function_zip}.zip"
   source_dir  = "${path.module}/../source/crypto_api_function"
-  #excludes    = var.excludes
 }
 
 resource "google_storage_bucket_object" "store_bitcoin_function" {
@@ -64,4 +70,9 @@ resource "google_cloudfunctions_function" "bitcoin_function" {
     region = var.region
     timeout = 60    
     depends_on = [google_secret_manager_secret_version.api_secret_key_version, google_pubsub_topic.bitcoin_topic]  
+}
+
+resource "google_bigquery_dataset" "default" {
+  dataset_id                  = var.dataset_id
+  description                 = "Dataset that contains rates about crypto coins"
 }
