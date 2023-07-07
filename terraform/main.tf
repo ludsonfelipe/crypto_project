@@ -22,54 +22,52 @@ resource "google_secret_manager_secret_version" "api_secret_key_version" {
     ]
 }
 
-resource "google_storage_bucket" "bucket_bitcoin_api" {
-  name     = var.name_bucket_bitcoin
+resource "google_storage_bucket" "bucket_crypto_api" {
+  name     = var.name_bucket_crypto
   location = var.region
 }
 
-resource "google_pubsub_topic" "bitcoin_topic" {
-  name = var.name_topic_bitcoin
+resource "google_pubsub_topic" "crypto_topic" {
+  name = var.name_topic_crypto
 }
 
 resource "google_pubsub_subscription" "dataflow_sub" {
   name = var.dataflow_sub
-  topic = google_pubsub_topic.bitcoin_topic.name
+  topic = google_pubsub_topic.crypto_topic.name
 }
 
-
-
-data "archive_file" "bitcoin_cloud_function_folder" {
+data "archive_file" "crypto_cloud_function_folder" {
   type        = "zip"
   output_path = "/tmp/${var.name_crypto_function_zip}.zip"
   source_dir  = "${path.module}/../source/crypto_api_function"
 }
 
-resource "google_storage_bucket_object" "store_bitcoin_function" {
-    name = "${var.name_crypto_function_zip}.${data.archive_file.bitcoin_cloud_function_folder.output_sha}.zip"
-    bucket = google_storage_bucket.bucket_bitcoin_api.id
-    source = data.archive_file.bitcoin_cloud_function_folder.output_path
+resource "google_storage_bucket_object" "store_crypto_function" {
+    name = "${var.name_crypto_function_zip}.${data.archive_file.crypto_cloud_function_folder.output_sha}.zip"
+    bucket = google_storage_bucket.bucket_crypto_api.id
+    source = data.archive_file.crypto_cloud_function_folder.output_path
     
 }
 
-resource "google_cloudfunctions_function" "bitcoin_function" {
+resource "google_cloudfunctions_function" "crypto_function" {
     
-    name         = "bitcoin-function"
+    name         = "crypto-function"
     runtime      = "python310"
-    entry_point  = "get_bitcoin_data"
+    entry_point  = "get_crypto_data"
     trigger_http = true     
-    source_archive_bucket = google_storage_bucket.bucket_bitcoin_api.name
-    source_archive_object = google_storage_bucket_object.store_bitcoin_function.name
+    source_archive_bucket = google_storage_bucket.bucket_crypto_api.name
+    source_archive_object = google_storage_bucket_object.store_crypto_function.name
 
 
     environment_variables = {
-      TOPIC_ID   = var.name_topic_bitcoin
+      TOPIC_ID   = var.name_topic_crypto
       PROJECT_ID = var.project_id
       SECRET_ID = google_secret_manager_secret_version.api_secret_key_version.secret_data
     }
 
     region = var.region
     timeout = 60    
-    depends_on = [google_secret_manager_secret_version.api_secret_key_version, google_pubsub_topic.bitcoin_topic]  
+    depends_on = [google_secret_manager_secret_version.api_secret_key_version, google_pubsub_topic.crypto_topic]  
 }
 
 resource "google_bigquery_dataset" "default" {

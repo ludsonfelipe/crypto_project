@@ -7,7 +7,7 @@ from apache_beam.options.pipeline_options import PipelineOptions
 # Constantes
 SCHEMA = 'code:STRING,rate:FLOAT,volume:INTEGER,cap:INTEGER,circulatingSupply:INTEGER\
 ,totalSupply:INTEGER,maxSupply:INTEGER,max_price:FLOAT,min_price:FLOAT,timestamp:TIMESTAMP'
-SUBSCRIPTION = 'projects/playground-s-11-7b1242ce/subscriptions/dataflow'
+SUBSCRIPTION = 'projects/playground-s-11-cdfc0c33/subscriptions/dataflow'
 
 # Funções de transformação
 def to_json(data):
@@ -92,7 +92,7 @@ if __name__ == '__main__':
     | beam.ParDo(MinMaxBitcoinPriceFn())
     | beam.Map(format_for_bigquery)
     | beam.Map(add_timestamp)
-    | beam.io.WriteToBigQuery('playground-s-11-7b1242ce:crypto.crypto_price',
+    | beam.io.WriteToBigQuery('playground-s-11-cdfc0c33:crypto.crypto_price',
                             create_disposition=beam.io.BigQueryDisposition.CREATE_IF_NEEDED,
                             write_disposition=beam.io.BigQueryDisposition.WRITE_APPEND,
                             schema=SCHEMA))

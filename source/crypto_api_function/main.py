@@ -5,7 +5,7 @@ import os
 from time import sleep
 import json
 
-def get_bitcoin_data(request):
+def get_crypto_data(request):
     topic_id = os.environ.get('TOPIC_ID')
     project_id = os.environ.get('PROJECT_ID')
     secret_id = os.environ.get('SECRET_ID')
@@ -28,8 +28,8 @@ def get_bitcoin_data(request):
     'content-type': 'application/json'
     }
     value = 0
-    while value<10:
-        sleep(1)
+    while value<5000:
+        sleep(5)
         response = re.request("POST", url, headers=headers, data=payload)
         print(response)
         publisher.publish(topic_path, response.text.encode("utf-8"))

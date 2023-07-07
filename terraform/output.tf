@@ -1,13 +1,13 @@
 #output "function_url" {
-#  value = google_cloudfunctions_function.bitcoin_function.https_trigger_url
+#  value = google_cloudfunctions_function.crypto_function.https_trigger_url
 #}
 #
 output "topic_name" {
-  value = google_pubsub_topic.bitcoin_topic.name
+  value = google_pubsub_topic.crypto_topic.name
 }
 
 output "bucket_name" {
-  value = google_storage_bucket.bucket_bitcoin_api.name
+  value = google_storage_bucket.bucket_crypto_api.name
 }
 
 output "secret_name" {
