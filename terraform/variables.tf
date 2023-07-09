@@ -10,7 +10,7 @@ variable "secret_api_key" {
     
 }
 variable "name_bucket_crypto" {
-  default = "bucket_crypto_api_project_999"
+  default = "bucket_crypto_api_project_9899"
 }
 variable "dataset_id" {
     default ="crypto"

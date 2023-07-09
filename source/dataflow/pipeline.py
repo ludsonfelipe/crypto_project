@@ -7,7 +7,6 @@ from apache_beam.options.pipeline_options import PipelineOptions
 # Constantes
 SCHEMA = 'code:STRING,rate:FLOAT,volume:INTEGER,cap:INTEGER,circulatingSupply:INTEGER\
 ,totalSupply:INTEGER,maxSupply:INTEGER,max_price:FLOAT,min_price:FLOAT,timestamp:TIMESTAMP'
-SUBSCRIPTION = 'projects/playground-s-11-cdfc0c33/subscriptions/dataflow'
 
 # Funções de transformação
 def to_json(data):
@@ -80,10 +79,14 @@ def add_timestamp(element):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    known_args = parser.parse_known_args()
-    p = beam.Pipeline(options=PipelineOptions())
+    parser.add_argument('--subscription', help='Pub/Sub subscription')
+    parser.add_argument('--bq_path', help='Bigquery path to write')
 
-    (p | beam.io.ReadFromPubSub(subscription=SUBSCRIPTION).with_output_types(bytes)
+    known_args, pip = parser.parse_known_args()
+
+    p = beam.Pipeline(options=PipelineOptions(pip))
+
+    (p | beam.io.ReadFromPubSub(subscription=known_args.subscription).with_output_types(bytes)
     
     | beam.Map(lambda x: x.decode('utf-8'))
     | beam.FlatMap(to_json)
@@ -92,11 +95,9 @@ if __name__ == '__main__':
     | beam.ParDo(MinMaxBitcoinPriceFn())
     | beam.Map(format_for_bigquery)
     | beam.Map(add_timestamp)
-    | beam.io.WriteToBigQuery('playground-s-11-cdfc0c33:crypto.crypto_price',
+    | beam.io.WriteToBigQuery(known_args.bq_path,
                             create_disposition=beam.io.BigQueryDisposition.CREATE_IF_NEEDED,
                             write_disposition=beam.io.BigQueryDisposition.WRITE_APPEND,
                             schema=SCHEMA))
     result = p.run()
     result.wait_until_finish()
-
-#python pipeline.py --streaming --runner DataflowRunner --project playground-s-11-7b1242ce --temp_location gs://bucket_bitcoin_api_project_99/temp --staging_location gs://bucket_bitcoin_api_project_99/stage --region us-east1 --job_name cryptoz

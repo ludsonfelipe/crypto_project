@@ -70,7 +70,7 @@ resource "google_cloudfunctions_function" "crypto_function" {
     depends_on = [google_secret_manager_secret_version.api_secret_key_version, google_pubsub_topic.crypto_topic]  
 }
 
-resource "google_bigquery_dataset" "default" {
+resource "google_bigquery_dataset" "crypto_dataset" {
   dataset_id                  = var.dataset_id
   description                 = "Dataset that contains rates about crypto coins"
 }
