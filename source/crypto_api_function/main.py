@@ -27,11 +27,9 @@ def get_crypto_data(request):
     'x-api-key':secret_id,
     'content-type': 'application/json'
     }
-    value = 0
-    while value<5000:
-        sleep(5)
+
+    while True:
+        sleep(10)
         response = re.request("POST", url, headers=headers, data=payload)
-        print(response)
         publisher.publish(topic_path, response.text.encode("utf-8"))
-        value +=1
     return "Requisição foi um sucesso!"

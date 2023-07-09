@@ -1,6 +1,6 @@
 #!/bin/bash
 
-project_id="playground-s-11-7b1242ce"
+project_id="$1"
 
 gcloud config set project $project_id
 gcloud services enable secretmanager.googleapis.com
